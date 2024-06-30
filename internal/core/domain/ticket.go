@@ -25,7 +25,6 @@ type Ticket struct {
 	Note        *string      `json:"note,omitempty"`
 	CreatedAt   *time.Time   `json:"created_at,omitempty"`
 	UpdatedAt   *time.Time   `json:"updated_at,omitempty"`
-	// Code        string       `json:"code"`
 }
 
 func (ts TicketStatus) IsValid() bool {

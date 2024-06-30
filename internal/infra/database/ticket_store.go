@@ -16,8 +16,8 @@ const (
 	CREATE_TICKET_QUERY          = "INSERT INTO tickets (ticket_id, name, issuer_email, description, status, response, note, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, ticket_id, name, issuer_email, description, status, response, note, created_at, updated_at"
 	LIST_TICKETS_QUERY           = "SELECT id, ticket_id, name, issuer_email, description, status, response, note, created_at, updated_at FROM tickets"
 	LIST_TICKETS_QUERY_BY_STATUS = "SELECT id, ticket_id, name, issuer_email, description, status, response, note, created_at, updated_at FROM tickets WHERE status = $1"
-	GET_TICKET_BY_ID_QUERY       = "SELECT id, ticket_id, name, issuer_email, description, status, response, note FROM tickets WHERE ticket_id = $1"
-	UPDATE_TICKET_QUERY          = "UPDATE tickets SET status = $1, response = $2, note = $3 WHERE ticket_id = $4 RETURNING id, ticket_id, name, issuer_email, description, status, response, note"
+	GET_TICKET_BY_ID_QUERY       = "SELECT id, ticket_id, name, issuer_email, description, status, response, note, created_at, updated_at FROM tickets WHERE ticket_id = $1"
+	UPDATE_TICKET_QUERY          = "UPDATE tickets SET status = $1, response = $2, note = $3 WHERE ticket_id = $4 RETURNING id, ticket_id, name, issuer_email, description, status, response, note, created_at, updated_at"
 )
 
 func (rh *DBHandler) CreateTicket(detail ports.TicketCreateDetail) (*domain.Ticket, error) {
@@ -86,7 +86,10 @@ func (rh *DBHandler) GetTicketById(id uuid.UUID) (*domain.Ticket, error) {
 		&ticket.Description,
 		&ticket.Status,
 		&ticket.Response,
-		&ticket.Note)
+		&ticket.Note,
+		&ticket.CreatedAt,
+		&ticket.UpdatedAt,
+	)
 
 	if err != nil {
 		return nil, err
@@ -102,7 +105,6 @@ func (h *DBHandler) ListTickets(ticketOpts *ports.TicketListOptions) ([]*domain.
 		return nil, err
 	}
 	defer dbConn.Release()
-	fmt.Println("options", ticketOpts)
 	query, args := buildListTicketQuery(ticketOpts)
 	if len(query) <= 0 || args == nil {
 		rows, err = dbConn.Query(
@@ -164,11 +166,14 @@ func (h *DBHandler) UpdateTicket(ticketId uuid.UUID, opts ports.TicketUpdateOpti
 	defer dbConn.Release()
 
 	updatedTicket := &domain.Ticket{}
-	err = dbConn.QueryRow(context.Background(), UPDATE_TICKET_QUERY,
-		opts.Status,
-		opts.Response,
-		opts.Note,
-		ticketId,
+
+	baseQuery, args := buildUpdateTicketQuery(&opts)
+
+	if len(args) <= 0 {
+		return nil, fmt.Errorf("nothing to update")
+	}
+	err = dbConn.QueryRow(context.Background(), baseQuery,
+		append(args, ticketId)...,
 	).Scan(
 		&updatedTicket.ID,
 		&updatedTicket.TicketID,
@@ -210,6 +215,41 @@ func buildListTicketQuery(options *ports.TicketListOptions) (string, []interface
 			baseQuery += " AND " + conditions[i]
 		}
 	}
+
+	return baseQuery, args
+}
+
+func buildUpdateTicketQuery(options *ports.TicketUpdateOptions) (string, []interface{}) {
+	if options == nil {
+		return "", nil
+	}
+	baseQuery := "UPDATE tickets SET "
+	var args []interface{}
+	var conditions []string
+	fmt.Println("options", options)
+	if options.Status != nil && *options.Status != "" {
+		conditions = append(conditions, "status = $"+fmt.Sprint(len(args)+1))
+		args = append(args, options.Status)
+	}
+
+	if options.Response != nil && len(*options.Response) >= 0 {
+		conditions = append(conditions, "response = $"+fmt.Sprint(len(args)+1))
+		args = append(args, options.Response)
+	}
+
+	if options.Note != nil && len(*options.Note) >= 0 {
+		conditions = append(conditions, "note = $"+fmt.Sprint(len(args)+1))
+		args = append(args, options.Note)
+	}
+
+	if len(conditions) > 0 {
+		baseQuery += fmt.Sprint(conditions[0])
+		for i := 1; i < len(conditions); i++ {
+			baseQuery += " AND " + conditions[i]
+		}
+	}
+
+	baseQuery += fmt.Sprintf(" WHERE ticket_id = $%d RETURNING id, ticket_id, name, issuer_email, description, status, response, note", len(args)+1)
 
 	return baseQuery, args
 }

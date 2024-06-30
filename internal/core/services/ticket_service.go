@@ -7,19 +7,19 @@ import (
 )
 
 type ticketService struct {
-	repo ports.TicketRepo
+	Repo ports.TicketRepo
 }
 type ListTicketOpts struct {
 	limit  int64
 	offset int64
 }
 
-func NewTicketService(repo ports.TicketRepo) ports.TicketService {
-	return &ticketService{repo: repo}
+func NewTicketService(repo ports.TicketRepo) *ticketService {
+	return &ticketService{Repo: repo}
 }
 
 func (s *ticketService) CreateTicket(ticketDetail ports.TicketCreateDetail) (*domain.Ticket, error) {
-	result, err := s.repo.Create(ports.TicketCreateDetail{
+	result, err := s.Repo.Create(ports.TicketCreateDetail{
 		Name:        ticketDetail.Name,
 		IssuerEmail: ticketDetail.IssuerEmail,
 		Description: ticketDetail.Description,
@@ -33,7 +33,7 @@ func (s *ticketService) CreateTicket(ticketDetail ports.TicketCreateDetail) (*do
 }
 
 func (s *ticketService) GetTicket(uuid uuid.UUID) (*domain.Ticket, error) {
-	ticket, err := s.repo.GetByID(uuid)
+	ticket, err := s.Repo.GetByID(uuid)
 
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func (s *ticketService) GetTicket(uuid uuid.UUID) (*domain.Ticket, error) {
 }
 
 func (s *ticketService) ListTickets(ticketOpts *ports.TicketListOptions) ([]*domain.Ticket, error) {
-	tickets, err := s.repo.List(ticketOpts)
+	tickets, err := s.Repo.List(ticketOpts)
 
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func (s *ticketService) ListTickets(ticketOpts *ports.TicketListOptions) ([]*dom
 }
 
 func (s *ticketService) UpdateTicket(ticketId uuid.UUID, opts ports.TicketUpdateOptions) (*domain.Ticket, error) {
-	ticket, err := s.repo.Update(ticketId, opts)
+	ticket, err := s.Repo.Update(ticketId, opts)
 
 	if err != nil {
 		return nil, err
