@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	CHECK_TABLE_EXIST_QUERY = "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = $1)"
+	CHECK_TABLE_EXIST_QUERY = "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = $1 AND table_name = $2)"
 )
 
 func CreateAndSetSchema(db *DBHandler, schema string) error {
@@ -36,10 +36,19 @@ func CreateTicketsTable(db *DBHandler) error {
 	// Check if the table exists
 	dbConn, err := db.getDbConnection()
 
+	if err != nil {
+		return err
+	}
 	defer dbConn.Release()
 	var exists bool
 
-	_, err = dbConn.Exec(context.Background(), CHECK_TABLE_EXIST_QUERY, "tickets")
+	// Set search path to use the new schema
+	_, err = dbConn.Exec(context.Background(), fmt.Sprintf(`SET search_path TO %s`, "zealthy"))
+	if err != nil {
+		return fmt.Errorf("error setting search path: %w", err)
+	}
+
+	err = dbConn.QueryRow(context.Background(), CHECK_TABLE_EXIST_QUERY, "zealthy", "tickets").Scan(&exists)
 	if err != nil {
 		return fmt.Errorf("error checking if tickets table exists: %w", err)
 	}
@@ -56,8 +65,8 @@ func CreateTicketsTable(db *DBHandler) error {
                 status VARCHAR(50) NOT NULL,
                 response VARCHAR(255),
 				note VARCHAR(255),
-				created_at TIMESTAMP NOT NULL
-				updated_at TIMESTAMP NOT NULL,
+				created_at TIMESTAMP NOT NULL,
+				updated_at TIMESTAMP NOT NULL
             )
         `)
 		if err != nil {
