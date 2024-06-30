@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/joho/godotenv"
 	repositories "github.com/zealthy/helpdesk-backend/internal/adapters"
 	"github.com/zealthy/helpdesk-backend/internal/adapters/handlers"
 	"github.com/zealthy/helpdesk-backend/internal/core/services"
@@ -15,11 +14,7 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(".env"); err != nil {
-		// Handle error loading .env file
-		log.Fatalf("Error loading .env file: %v\n", err)
-		os.Exit(1)
-	}
+
 	dbpool, derr := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 
 	if derr != nil {
