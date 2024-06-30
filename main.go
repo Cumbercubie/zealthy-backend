@@ -42,7 +42,7 @@ func main() {
 	interruptChannel := make(chan os.Signal, 1)
 
 	go func() {
-		r.Run(":3000")
+		r.Run(":8080")
 	}()
 
 	<-interruptChannel
