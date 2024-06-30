@@ -55,7 +55,7 @@ func CreateTicketsTable(db *DBHandler) error {
                 description VARCHAR(255) NOT NULL,
                 status VARCHAR(50) NOT NULL,
                 response VARCHAR(255),
-				note VARCHAR(255)
+				note VARCHAR(255),
 				created_at TIMESTAMP NOT NULL
 				updated_at TIMESTAMP NOT NULL,
             )
