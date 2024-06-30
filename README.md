@@ -1,4 +1,4 @@
-# Go example projects
+# Zealthy Ticket Support Back-end System
 
 [![Go Reference](https://pkg.go.dev/badge/golang.org/x/example.svg)](https://pkg.go.dev/golang.org/x/example)
 
@@ -23,10 +23,14 @@ $ cd zealthy-backend
 $ go run main.go
 ```
 
+## Run tests
+```
+$ go test ./internal/test
+```
 Available APIs:
 
 * `GET/v1/api/tickets`: List all tickets with optional filter by `status` params
-* `GET/v1/api/ticket/:id`: Get ticket with specified `id`
+* `GET/v1/api/ticket/:ticket_id`: Get ticket with specified `ticket_id`
 * `POST/v1/api/ticket`: Create ticket
 * `PUT/v1/api/ticket/:id`: Update a ticket with specified `id`
 
@@ -36,7 +40,11 @@ params:
 
 * status: NEW | IN_PROGRESS | RESOLVED
 
-## `GET/v1/api/ticket/:id`
+## `GET/v1/api/ticket/:ticket_id`
+
+params:
+
+* ticket_id: ticket_id field of desired ticket
 
 ## `POST/v1/api/ticket`
 
