@@ -75,6 +75,9 @@ func validateTicketUpdateOptions(ticket *domain.Ticket, opts ports.TicketUpdateO
 	// NEW -> RESOLVED
 	// IN_PROGRESS -> RESOLVED
 	if opts.Status != nil && len(*opts.Status) >= 0 {
+		if !opts.Status.IsValid() {
+			return fmt.Errorf("invalid status")
+		}
 		switch *opts.Status {
 		case domain.TicketStatusInProgress:
 			if ticket.Status != domain.TicketStatusNew {

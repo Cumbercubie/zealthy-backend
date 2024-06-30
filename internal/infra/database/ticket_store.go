@@ -226,7 +226,7 @@ func buildUpdateTicketQuery(options *ports.TicketUpdateOptions) (string, []inter
 	baseQuery := "UPDATE tickets SET "
 	var args []interface{}
 	var conditions []string
-	fmt.Println("options", options)
+
 	if options.Status != nil && *options.Status != "" {
 		conditions = append(conditions, "status = $"+fmt.Sprint(len(args)+1))
 		args = append(args, options.Status)
@@ -245,11 +245,11 @@ func buildUpdateTicketQuery(options *ports.TicketUpdateOptions) (string, []inter
 	if len(conditions) > 0 {
 		baseQuery += fmt.Sprint(conditions[0])
 		for i := 1; i < len(conditions); i++ {
-			baseQuery += " AND " + conditions[i]
+			baseQuery += ", " + conditions[i]
 		}
 	}
 
 	baseQuery += fmt.Sprintf(" WHERE ticket_id = $%d RETURNING id, ticket_id, name, issuer_email, description, status, response, note", len(args)+1)
-
+	fmt.Println(baseQuery, args)
 	return baseQuery, args
 }
