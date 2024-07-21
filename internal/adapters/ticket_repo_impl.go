@@ -74,6 +74,7 @@ func validateTicketUpdateOptions(ticket *domain.Ticket, opts ports.TicketUpdateO
 	// NEW -> IN_PROGRESS
 	// NEW -> RESOLVED
 	// IN_PROGRESS -> RESOLVED
+	// IN_PROGRESS -> NEW
 	if opts.Status != nil && len(*opts.Status) >= 0 {
 		if !opts.Status.IsValid() {
 			return fmt.Errorf("invalid status")
@@ -83,8 +84,6 @@ func validateTicketUpdateOptions(ticket *domain.Ticket, opts ports.TicketUpdateO
 			if ticket.Status != domain.TicketStatusNew {
 				return fmt.Errorf("invalid status: Can only move status from New to In Progress")
 			}
-		case domain.TicketStatusNew:
-			return fmt.Errorf("invalid status: Ticket can not be moved back to New ")
 		case domain.TicketStatusResolved:
 			if ticket.Status == domain.TicketStatusResolved {
 				return fmt.Errorf("invalid status: This ticket has already been resolved")
