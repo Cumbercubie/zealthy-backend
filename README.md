@@ -1,4 +1,4 @@
-# Zealthy Ticket Support Back-end System
+# Ticket Support Back-end System
 
 [![Go Reference](https://pkg.go.dev/badge/golang.org/x/example.svg)](https://pkg.go.dev/golang.org/x/example)
 
@@ -7,8 +7,8 @@ This repository is back-end web API for Zealthy's ticket support system.
 ## Clone the project
 
 ```
-$ git clone https://github.com/Cumbercubie/zealthy-backend.git
-$ cd zealthy-backend
+$ git clone https://github.com/Cumbercubie/Cumbercubie/support-portal-backend.git
+$ cd support-portal-backend
 ```
 
 ## Export the .env variable
@@ -19,7 +19,7 @@ $ export DATABASE_URL=<database_url>
 
 ## Start the server
 ```
-$ cd zealthy-backend
+$ cd support-portal-backend
 $ go run main.go
 ```
 
